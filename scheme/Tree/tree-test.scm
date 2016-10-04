@@ -1,0 +1,41 @@
+;; These make drracket treat this file as R5RS scheme:
+#lang r5rs
+(#%provide (all-defined))
+
+(#%require "tree.scm")
+
+(define (tree-test)
+  (define (prefix_concat root kid-values)
+    (if (null? kid-values)
+        root
+        (string-append root (car kid-values) (prefix_concat "" (cdr kid-values)))))
+  (let ( (one  (leaf "one"))
+	 (uni  (tree "uni" '()))  ; strange way to make a leaf, but o.k.
+	 (solo (leaf "solo")) )
+    (let ( (two ( tree "two" (list one uni solo)))
+	   (bi  ( tree "bi" (list uni))) )
+      (let ( (tri (tree "tri" (list two bi))) )
+	(and
+	 (leaf? one)
+	 (not (leaf? two))
+         (leaf? uni)
+         (leaf? solo)
+	 (tree? one)
+	 (tree? two)
+         (equal? "one" (tree-value one))
+         (equal? "two" (tree-value two))
+         (equal? "one" (tree-value (car (tree-children two))))
+         (equal? "uni" (tree-value (car (cdr (tree-children two)))))
+	 (equal? 1 (tree-height uni))
+	 (equal? 4 (tree-weight two))
+	 (equal? 2 (tree-height two))
+	 (equal? 7 (tree-weight tri))
+	 (equal? 3 (tree-height tri))
+         ;(equal? "one!" (tree-value (tree-map (lambda (s) (string-append s "!")) one)))
+         ;(equal? "uni!" (tree-value (car (cdr (tree-children (tree-map (lambda (s) (string-append s "!")) two))))))
+         ;(equal? "one"  (tree-reduce prefix_concat one))
+         ;(equal? "biuni" (tree-reduce prefix_concat bi))
+         ;(equal? "twooneunisolo" (tree-reduce prefix_concat two))
+         ;(equal? "tritwooneunisolobiuni" (tree-reduce prefix_concat tri))
+         ;(equal? "tri two one uni solo bi uni " (tree-reduce prefix_concat (tree-map (lambda (s) (string-append s " ")) tri)))
+	 )))))
